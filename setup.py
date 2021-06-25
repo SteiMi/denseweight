@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="denseweight",
-    version="1.0.0",
+    version="0.1.0",
     author="Michael Steininger",
     author_email="steininger@informatik.uni-wuerzburg.de",
     description="The imbalanced regression method DenseWeight",
@@ -22,5 +22,6 @@ setuptools.setup(
     ],
     package_dir={"": "src"},
     packages=setuptools.find_packages(where="src"),
+    install_requires=["numpy", "KDEpy", "scikit-learn"],
     python_requires=">=3.6",
 )

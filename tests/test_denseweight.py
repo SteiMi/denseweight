@@ -1,0 +1,28 @@
+from unittest import TestCase
+import unittest
+
+import numpy as np
+from denseweight import DenseWeight
+
+
+class BasicTest(TestCase):
+    def test_does_it_work(self):
+        eps = 1e-6
+        y = np.random.normal(size=1000)
+        dw = DenseWeight(y, eps=eps)
+        w = dw([0.0])
+        self.assertIsInstance(w[0], float)
+        self.assertGreaterEqual(w[0], eps)
+        self.assertLessEqual(w[0], 1.0)
+
+    def test_alpha_0(self):
+        eps = 1e-6
+        alpha = 0.0
+        y = np.random.normal(size=1000)
+        dw = DenseWeight(y, alpha=alpha, eps=eps)
+        weights = dw([-1.0, -0.5, 0.0, 0.5, 1.0])
+        self.assertTrue([w == 1.0 for w in weights])
+
+
+if __name__ == '__main__':
+    unittest.main()
