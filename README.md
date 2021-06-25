@@ -4,7 +4,7 @@ This package implements the method for imbalanced regression *DenseWeight*. The 
 
 The goal of DenseWeight is to allow training machine learning models for regression tasks that emphasize performance for data points with rare target values in comparison to data points with more common target values. This can be useful when rare samples are of particular interest e.g. when estimating precipitation and you are interested in estimating rare, extreme precipitation events as well as possible. The parameter alpha controls the intensity of the density-based weighting scheme (alpha = 0.0 -> uniform weighting; larger alpha -> more emphasis on rare samples).
 
-DenseWeight judges the rarity of a target value based on its density, which is obtained through Kernel Density Estimation (KDE). This package uses the fast convolutional-based KDE implementation FFTKDE from [KDEpy](https://github.com/tommyod/KDEpy) to allow the application for large datasets.
+DenseWeight judges the rarity of a target value based on its density, which is obtained through Kernel Density Estimation (KDE). This package uses the fast convolutional-based KDE implementation FFTKDE from [KDEpy](https://github.com/tommyod/KDEpy) to allow the application of DenseWeight for large datasets.
 
 ## Installation
 
