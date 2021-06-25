@@ -20,8 +20,8 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    package_dir={"": "src"},
-    packages=setuptools.find_packages(where="src"),
+    package_dir={"": "denseweight"},
+    packages=setuptools.find_packages(where="denseweight"),
     install_requires=["numpy", "KDEpy", "scikit-learn"],
     python_requires=">=3.6",
 )
