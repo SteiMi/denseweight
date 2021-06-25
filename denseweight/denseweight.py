@@ -6,6 +6,7 @@ Module for DenseWeight.
 import functools
 from typing import Optional, Union
 import numpy as np
+from numpy.typing import ArrayLike
 from sklearn.preprocessing import MinMaxScaler
 from KDEpy import FFTKDE
 from denseweight.utils import bisection
@@ -16,10 +17,8 @@ class DenseWeight:
     This class implements DenseWeight.
     Parameters
     ----------
-    y : array-like
-        The target values based on which DenseWeight calculates weights.
     alpha : float
-        Alpha value for DenseWeight. Adjust the intensity of density-based
+        Alpha value for DenseWeight. Adjusts the intensity of density-based
         weighting.
     bandwidth : float or str
         Bandwidth or bandwidth selection method. If a float is passed, it
@@ -33,24 +32,23 @@ class DenseWeight:
 
     def __init__(
         self,
-        y,
         alpha: float = 1.0,
         bandwidth: Optional[Union[float, str]] = None,
         eps: float = 1e-6,
     ):
         self.alpha = alpha
+        self.bandwidth = bandwidth
+        self.eps = eps
 
-        if bandwidth:
-            bandwidth_used = bandwidth
+    def fit(self, y: ArrayLike, grid_points=4096) -> np.ndarray:
 
-        else:
+        if self.bandwidth is None:
             silverman_bandwidth = 1.06 * np.std(y) * np.power(len(y), (-1.0 / 5.0))
+            self.bandwidth = silverman_bandwidth
 
-            bandwidth_used = silverman_bandwidth
+        self.kernel = FFTKDE(bw=self.bandwidth).fit(y, weights=None)
 
-        self.kernel = FFTKDE(bw=bandwidth_used).fit(y, weights=None)
-
-        x, y_dens_grid = self.kernel.evaluate(4096)  # Default precision is 1024
+        x, y_dens_grid = self.kernel.evaluate(grid_points)  # Default precision is 1024
         self.x = x
 
         # Min-Max Scale to 0-1 since pdf's can actually exceed 1
@@ -61,13 +59,16 @@ class DenseWeight:
 
         self.y_dens = np.vectorize(self.get_density)(y)
 
-        self.eps = eps
         w_star = np.maximum(1 - self.alpha * self.y_dens, self.eps)
         self.mean_w_star = np.mean(w_star)
-        self.relevances = w_star / self.mean_w_star
+        self.weights = w_star / self.mean_w_star
+        return self.weights
 
-    def get_density(self, y):
-        idx = bisection(self.x, y)
+    def get_density(self, y: ArrayLike) -> np.ndarray:
+        try:
+            idx = bisection(self.x, y)
+        except AttributeError:
+            raise ValueError("Must call fit first!")
         try:
             dens = self.y_dens_grid[idx]
         except IndexError:
@@ -78,17 +79,18 @@ class DenseWeight:
             dens = self.y_dens_grid[idx]
         return dens
 
-    @functools.lru_cache(maxsize=100000)
-    def eval_single(self, y):
+    # Cache 10000 values to speed things up
+    @functools.lru_cache(maxsize=10000)
+    def eval_single(self, y: float) -> float:
         dens = self.get_density(y)
         return np.maximum(1 - self.alpha * dens, self.eps) / self.mean_w_star
 
-    def eval(self, y):
-        if type(y) is np.ndarray:
-            y = y.flatten().tolist()
+    def eval(self, y: ArrayLike) -> np.ndarray:
+        np_y = np.array(y)
+        y_l = np_y.flatten().tolist()
 
-        rels = np.array(list(map(self.eval_single, y)))  # [:, None]
+        rels = np.array(list(map(self.eval_single, y_l)))
         return rels
 
-    def __call__(self, y):
+    def __call__(self, y: ArrayLike) -> np.ndarray:
         return self.eval(y)
