@@ -1,6 +1,6 @@
 # DenseWeight
 
-This package implements the method for imbalanced regression *DenseWeight*. The corresponding paper "Density-based weighting for imbalanced regression" is accepted for publication and will soon be available.
+This package implements the method for imbalanced regression *DenseWeight*. The corresponding paper "Density-based weighting for imbalanced regression" is available [here](https://dx.doi.org/10.1007/s10994-021-06023-5).
 
 The goal of DenseWeight is to allow training machine learning models for regression tasks that emphasize performance for data points with rare target values in comparison to data points with more common target values. This can be useful when rare samples are of particular interest e.g. when estimating precipitation and you are interested in estimating rare, extreme precipitation events as well as possible. The parameter alpha controls the intensity of the density-based weighting scheme (alpha = 0.0 -> uniform weighting; larger alpha -> more emphasis on rare samples).
 
